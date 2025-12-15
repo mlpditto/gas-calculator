@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAS Pharyngitis Risk Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0c4a6e 0%, #075985 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .logo {
+            display: inline-block;
+            margin-bottom: 10px;
+            font-size: 40px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .system-selector {
+            margin-bottom: 30px;
+        }
+
+        .system-selector label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #334155;
+            font-size: 16px;
+        }
+
+        .system-selector select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .system-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .criteria-section {
+            margin-bottom: 30px;
+        }
+
+        .criteria-item {
+            background: #f8fafc;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .criteria-item:hover {
+            background: #f1f5f9;
+            border-color: #667eea;
+        }
+
+        .criteria-item label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 15px;
+            color: #334155;
+        }
+
+        .criteria-item input[type="checkbox"],
+        .criteria-item input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .age-group {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .age-group label {
+            display: block;
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .age-group label:hover {
+            background: #e2e8f0;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 3px solid #cbd5e1;
+        }
+
+        .result-box.low {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-color: #10b981;
+        }
+
+        .result-box.intermediate {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-color: #f59e0b;
+        }
+
+        .result-box.high {
+            background: linear-gradient(135deg, #fecdd3 0%, #fda4af 100%);
+            border-color: #ef4444;
+        }
+
+        .result-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .result-label {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .result-probability {
+            font-size: 18px;
+            color: #475569;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-box {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            margin-bottom: 20px;
+        }
+
+        .recommendation-box h3 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .recommendation-box p {
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-reset {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-print {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .info-table {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .button-group {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 22px;
+            }
+            .result-score {
+                font-size: 36px;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 13px;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🏥</div>
+            <h1>GAS Pharyngitis Risk Calculator</h1>
+            <p>ตามแนวทางคลินิก IDSA 2025 | เครื่องมือประเมินความเสี่ยงหลอดลมอักเสบจากเชื้อ GAS</p>
+        </div>
+
+        <div class="content">
+            <!-- System Selector -->
+            <div class="system-selector">
+                <label for="scoringSystem">🎯 เลือกระบบการให้คะแนน:</label>
+                <select id="scoringSystem" onchange="changeSystem()">
+                    <option value="centor">Centor Score</option>
+                    <option value="mcisaac">McIsaac Score</option>
+                    <option value="feverpain">FeverPAIN Score</option>
+                </select>
+            </div>
+
+            <!-- Centor Criteria -->
+            <div id="centorCriteria" class="criteria-section">
+                <h2 style="margin-bottom: 15px; color: #1e293b;">✓ เกณฑ์การประเมิน (Centor)</h2>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>ไม่มีอาการไอ (Absence of cough) <strong>+1</strong></span>
+                    </label>
+                </div>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>ต่อมน้ำเหลืองบริเวณคอโตและเจ็บ (Swollen, tender, anterior cervical adenopathy) <strong>+1</strong></span>
+                    </label>
+                </div>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>มีไข้ ≥ 38°C (Fever ≥ 38°C) <strong>+1</strong></span>
+                    </label>
+                </div>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>ทอนซิลมีหนองหรือบวม (Tonsillar exudate or swelling) <strong>+1</strong></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- McIsaac Criteria -->
+            <div id="mcisaacCriteria" class="criteria-section hidden">
+                <h2 style="margin-bottom: 15px; color: #1e293b;">✓ เกณฑ์การประเมิน (McIsaac)</h2>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>ไม่มีอาการไอ (Absence of cough) <strong>+1</strong></span>
+                    </label>
+                </div>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>ต่อมน้ำเหลืองบริเวณคอโตและเจ็บ (Swollen, tender, anterior cervical adenopathy) <strong>+1</strong></span>
+                    </label>
+                </div>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>มีไข้ ≥ 38°C (Fever ≥ 38°C) <strong>+1</strong></span>
+                    </label>
+                </div>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>ทอนซิลมีหนองหรือบวม (Tonsillar exudate or swelling) <strong>+1</strong></span>
+                    </label>
+                </div>
+                <div class="age-group">
+                    <strong style="display: block; margin-bottom: 10px; color: #334155;">📅 กลุ่มอายุ:</strong>
+                    <label>
+                        <input type="radio" name="age" class="age-radio" value="1">
+                        <span>3-14 ปี <strong>+1</strong></span>
+                    </label>
+                    <label>
+                        <input type="radio" name="age" class="age-radio" value="0" checked>
+                        <span>15-44 ปี <strong>0</strong></span>
+                    </label>
+                    <label>
+                        <input type="radio" name="age" class="age-radio" value="-1">
+                        <span>≥ 45 ปี <strong>-1</strong></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- FeverPAIN Criteria -->
+            <div id="feverpainCriteria" class="criteria-section hidden">
+                <h2 style="margin-bottom: 15px; color: #1e293b;">✓ เกณฑ์การประเมิน (FeverPAIN)</h2>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>ไม่มีอาการไอหรือน้ำมูก (Absence of cough or coryza) <strong>+1</strong></span>
+                    </label>
+                </div>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>ทอนซิลมีหนอง (Purulent tonsils) <strong>+1</strong></span>
+                    </label>
+                </div>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>มีไข้ใน 24 ชั่วโมงที่ผ่านมา (Febrile in past 24 hours) <strong>+1</strong></span>
+                    </label>
+                </div>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>ทอนซิลอักเสบ (Inflamed tonsils) <strong>+1</strong></span>
+                    </label>
+                </div>
+                <div class="criteria-item">
+                    <label>
+                        <input type="checkbox" class="criteria-check" data-points="1">
+                        <span>เริ่มมีอาการน้อยกว่า 3 วัน (Onset < 3 days) <strong>+1</strong></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div id="resultBox" class="result-box">
+                <div class="result-score" id="scoreDisplay">0</div>
+                <div class="result-label" id="riskLevel">ระดับความเสี่ยง: ต่ำ</div>
+                <div class="result-probability" id="probability">โอกาสเป็น GAS: 7-12%</div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="recommendation-box">
+                <h3>💊 คำแนะนำทางคลินิก:</h3>
+                <p id="recommendation">ไม่แนะนำให้ตรวจหาเชื้อหรือให้ยาปฏิชีวนะโดยทั่วไป</p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-group">
+                <button class="btn btn-reset" onclick="resetCalculator()">🔄 รีเซ็ต</button>
+                <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ผลลัพธ์</button>
+            </div>
+
+            <!-- Reference Table -->
+            <div class="info-table">
+                <h3 style="margin-bottom: 15px; color: #1e293b;">📊 ตารางอ้างอิง</h3>
+                <table id="referenceTable">
+                    <thead>
+                        <tr>
+                            <th>ระดับความเสี่ยง</th>
+                            <th>คะแนน</th>
+                            <th>โอกาสเป็น GAS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td>🟢 ต่ำ (Low Risk)</td>
+                            <td>0-1</td>
+                            <td>7-12%</td>
+                        </tr>
+                        <tr>
+                            <td>🟡 ปานกลาง (Intermediate Risk)</td>
+                            <td>2-3</td>
+                            <td>21-38%</td>
+                        </tr>
+                        <tr>
+                            <td>🔴 สูง (High Risk)</td>
+                            <td>4</td>
+                            <td>57%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>⚕️ เครื่องมือนี้ใช้สำหรับช่วยในการตัดสินใจทางคลินิกเท่านั้น ไม่ควรใช้แทนการวินิจฉัยโดยแพทย์</p>
+            <p>Based on 2025 IDSA Clinical Practice Guideline Update</p>
+        </div>
+    </div>
+
+    <script>
+        const scoringData = {
+            centor: {
+                lowRisk: { range: '0-1', probability: '7-12%' },
+                intermediateRisk: { range: '2-3', probability: '21-38%' },
+                highRisk: { range: '4', probability: '57%' },
+                recommendations: {
+                    low: 'ไม่แนะนำให้ตรวจหาเชื้อหรือให้ยาปฏิชีวนะโดยทั่วไป การรักษาแบบประคับประคองเพียงพอ',
+                    intermediate: 'พิจารณาตรวจหาเชื้อด้วย Rapid Antigen Test หรือใช้ดุลยพินิจทางคลินิก อาจรอผลตรวจก่อนให้ยาปฏิชีวนะ',
+                    high: 'แนะนำให้ตรวจหาเชื้อ พิจารณาให้ยาปฏิชีวนะเชิงป้องกัน (empiric antibiotics) ขณะรอผลตรวจ'
+                }
+            },
+            mcisaac: {
+                lowRisk: { range: '0-1', probability: '7.6-13.1%' },
+                intermediateRisk: { range: '2-3', probability: '20.8-33.6%' },
+                highRisk: { range: '4-5', probability: '50.7-69.3%' },
+                recommendations: {
+                    low: 'ไม่แนะนำให้ตรวจหาเชื้อหรือให้ยาปฏิชีวนะโดยทั่วไป การรักษาแบบประคับประคองเพียงพอ',
+                    intermediate: 'พิจารณาตรวจหาเชื้อด้วย Rapid Antigen Test หรือใช้ดุลยพินิจทางคลินิก อาจรอผลตรวจก่อนให้ยาปฏิชีวนะ',
+                    high: 'แนะนำให้ตรวจหาเชื้อ พิจารณาให้ยาปฏิชีวนะเชิงป้องกัน (empiric antibiotics) ขณะรอผลตรวจ'
+                }
+            },
+            feverpain: {
+                lowRisk: { range: '0-1', probability: '1-10%' },
+                intermediateRisk: { range: '2-3', probability: '11-35%' },
+                highRisk: { range: '4-5', probability: '51-53%' },
+                recommendations: {
+                    low: 'ไม่แนะนำให้ตรวจหาเชื้อหรือให้ยาปฏิชีวนะโดยทั่วไป การรักษาแบบประคับประคองเพียงพอ',
+                    intermediate: 'พิจารณาตรวจหาเชื้อด้วย Rapid Antigen Test หรือใช้ดุลยพินิจทางคลินิก อาจรอผลตรวจก่อนให้ยาปฏิชีวนะ',
+                    high: 'แนะนำให้ตรวจหาเชื้อ พิจารณาให้ยาปฏิชีวนะเชิงป้องกัน (empiric antibiotics) ขณะรอผลตรวจ'
+                }
+            }
+        };
+
+        function changeSystem() {
+            const system = document.getElementById('scoringSystem').value;
+            
+            // Hide all criteria sections
+            document.getElementById('centorCriteria').classList.add('hidden');
+            document.getElementById('mcisaacCriteria').classList.add('hidden');
+            document.getElementById('feverpainCriteria').classList.add('hidden');
+            
+            // Show selected system
+            document.getElementById(system + 'Criteria').classList.remove('hidden');
+            
+            // Update reference table
+            updateReferenceTable(system);
+            
+            // Reset calculator
+            resetCalculator();
+        }
+
+        function updateReferenceTable(system) {
+            const data = scoringData[system];
+            const tbody = document.getElementById('tableBody');
+            
+            tbody.innerHTML = `
+                <tr>
+                    <td>🟢 ต่ำ (Low Risk)</td>
+                    <td>${data.lowRisk.range}</td>
+                    <td>${data.lowRisk.probability}</td>
+                </tr>
+                <tr>
+                    <td>🟡 ปานกลาง (Intermediate Risk)</td>
+                    <td>${data.intermediateRisk.range}</td>
+                    <td>${data.intermediateRisk.probability}</td>
+                </tr>
+                <tr>
+                    <td>🔴 สูง (High Risk)</td>
+                    <td>${data.highRisk.range}</td>
+                    <td>${data.highRisk.probability}</td>
+                </tr>
+            `;
+        }
+
+        function calculateScore() {
+            const system = document.getElementById('scoringSystem').value;
+            let score = 0;
+            
+            // Calculate from checkboxes
+            const checkboxes = document.querySelectorAll('.criteria-check:checked');
+            checkboxes.forEach(cb => {
+                score += parseInt(cb.dataset.points);
+            });
+            
+            // Add age points for McIsaac
+            if (system === 'mcisaac') {
+                const ageRadio = document.querySelector('input[name="age"]:checked');
+                if (ageRadio) {
+                    score += parseInt(ageRadio.value);
+                }
+            }
+            
+            updateResults(score, system);
+        }
+
+        function updateResults(score, system) {
+            const data = scoringData[system];
+            const resultBox = document.getElementById('resultBox');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const riskLevel = document.getElementById('riskLevel');
+            const probability = document.getElementById('probability');
+            const recommendation = document.getElementById('recommendation');
+            
+            scoreDisplay.textContent = score;
+            
+            // Determine risk level
+            let risk, probText, riskText, riskClass;
+            
+            if (system === 'centor') {
+                if (score <= 1) {
+                    risk = 'low';
+                    riskText = 'ต่ำ (Low Risk)';
+                    probText = data.lowRisk.probability;
+                    riskClass = 'low';
+                } else if (score <= 3) {
+                    risk = 'intermediate';
+                    riskText = 'ปานกลาง (Intermediate Risk)';
+                    probText = data.intermediateRisk.probability;
+                    riskClass = 'intermediate';
+                } else {
+                    risk = 'high';
+                    riskText = 'สูง (High Risk)';
+                    probText = data.highRisk.probability;
+                    riskClass = 'high';
+                }
+            } else if (system === 'mcisaac') {
+                if (score <= 1) {
+                    risk = 'low';
+                    riskText = 'ต่ำ (Low Risk)';
+                    probText = data.lowRisk.probability;
+                    riskClass = 'low';
+                } else if (score <= 3) {
+                    risk = 'intermediate';
+                    riskText = 'ปานกลาง (Intermediate Risk)';
+                    probText = data.intermediateRisk.probability;
+                    riskClass = 'intermediate';
+                } else {
+                    risk = 'high';
+                    riskText = 'สูง (High Risk)';
+                    probText = data.highRisk.probability;
+                    riskClass = 'high';
+                }
+            } else { // feverpain
+                if (score <= 1) {
+                    risk = 'low';
+                    riskText = 'ต่ำ (Low Risk)';
+                    probText = data.lowRisk.probability;
+                    riskClass = 'low';
+                } else if (score <= 3) {
+                    risk = 'intermediate';
+                    riskText = 'ปานกลาง (Intermediate Risk)';
+                    probText = data.intermediateRisk.probability;
+                    riskClass = 'intermediate';
+                } else {
+                    risk = 'high';
+                    riskText = 'สูง (High Risk)';
+                    probText = data.highRisk.probability;
+                    riskClass = 'high';
+                }
+            }
+            
+            // Update display
+            riskLevel.textContent = 'ระดับความเสี่ยง: ' + riskText;
+            probability.textContent = 'โอกาสเป็น GAS: ' + probText;
+            recommendation.textContent = data.recommendations[risk];
+            
+            // Update styling
+            resultBox.className = 'result-box ' + riskClass;
+        }
+
+        function resetCalculator() {
+            // Uncheck all checkboxes
+            document.querySelectorAll('.criteria-check').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            // Reset age radio to default (15-44 years)
+            const defaultAge = document.querySelector('input[name="age"][value="0"]');
+            if (defaultAge) defaultAge.checked = true;
+            
+            // Reset results
+            document.getElementById('scoreDisplay').textContent = '0';
+            document.getElementById('riskLevel').textContent = 'ระดับความเสี่ยง: ต่ำ';
+            document.getElementById('probability').textContent = 'โอกาสเป็น GAS: 7-12%';
+            document.getElementById('recommendation').textContent = 'ไม่แนะนำให้ตรวจหาเชื้อหรือให้ยาปฏิชีวนะโดยทั่วไป';
+            document.getElementById('resultBox').className = 'result-box';
+        }
+
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add listeners to all checkboxes
+            document.querySelectorAll('.criteria-check').forEach(cb => {
+                cb.addEventListener('change', calculateScore);
+            });
+            
+            // Add listeners to age radio buttons
+            document.querySelectorAll('.age-radio').forEach(radio => {
+                radio.addEventListener('change', calculateScore);
+            });
+            
+            // Initialize reference table
+            updateReferenceTable('centor');
+        });
+    </script>
+</body>
+</html>
