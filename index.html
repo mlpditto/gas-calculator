@@ -54,36 +54,104 @@
             padding: 30px;
         }
 
-        .system-selector {
+        /* Tab Styles */
+        .tab-container {
             margin-bottom: 30px;
         }
 
-        .system-selector label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #334155;
-            font-size: 16px;
+        .tab-header {
+            display: flex;
+            gap: 0;
+            border-bottom: 3px solid #e2e8f0;
+            margin-bottom: 25px;
         }
 
-        .system-selector select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 16px;
-            background: white;
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            background: #f8fafc;
+            border: none;
+            border-bottom: 3px solid transparent;
             cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #64748b;
             transition: all 0.3s;
+            position: relative;
+            margin-bottom: -3px;
         }
 
-        .system-selector select:focus {
-            outline: none;
-            border-color: #667eea;
+        .tab-button:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #667eea;
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .tab-button.active::before {
+            transform: scaleX(1);
+        }
+
+        .tab-badge {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 8px;
+            font-weight: 700;
+        }
+
+        .tab-button.active .tab-badge {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .criteria-section {
             margin-bottom: 30px;
+        }
+
+        .criteria-section h2 {
+            margin-bottom: 15px;
+            color: #1e293b;
+            font-size: 20px;
         }
 
         .criteria-item {
@@ -99,6 +167,7 @@
         .criteria-item:hover {
             background: #f1f5f9;
             border-color: #667eea;
+            transform: translateX(5px);
         }
 
         .criteria-item label {
@@ -145,6 +214,7 @@
             text-align: center;
             margin-bottom: 20px;
             border: 3px solid #cbd5e1;
+            transition: all 0.3s;
         }
 
         .result-box.low {
@@ -226,6 +296,7 @@
         .btn-reset:hover {
             background: #dc2626;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
         }
 
         .btn-print {
@@ -236,6 +307,7 @@
         .btn-print:hover {
             background: #5568d3;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
         .info-table {
@@ -261,15 +333,19 @@
             color: #334155;
         }
 
-        .hidden {
-            display: none;
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 13px;
+            border-top: 1px solid #e2e8f0;
         }
 
         @media print {
             body {
                 background: white;
             }
-            .button-group {
+            .button-group, .tab-header {
                 display: none;
             }
         }
@@ -284,14 +360,15 @@
             .button-group {
                 flex-direction: column;
             }
-        }
-
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #64748b;
-            font-size: 13px;
-            border-top: 1px solid #e2e8f0;
+            .tab-button {
+                font-size: 14px;
+                padding: 12px 10px;
+            }
+            .tab-badge {
+                display: block;
+                margin-left: 0;
+                margin-top: 4px;
+            }
         }
     </style>
 </head>
@@ -304,121 +381,135 @@
         </div>
 
         <div class="content">
-            <!-- System Selector -->
-            <div class="system-selector">
-                <label for="scoringSystem">🎯 เลือกระบบการให้คะแนน:</label>
-                <select id="scoringSystem" onchange="changeSystem()">
-                    <option value="centor">Centor Score</option>
-                    <option value="mcisaac">McIsaac Score</option>
-                    <option value="feverpain">FeverPAIN Score</option>
-                </select>
-            </div>
+            <!-- Tab Navigation -->
+            <div class="tab-container">
+                <div class="tab-header">
+                    <button class="tab-button active" onclick="switchTab('centor')">
+                        📊 Centor Score
+                        <span class="tab-badge">0-4</span>
+                    </button>
+                    <button class="tab-button" onclick="switchTab('mcisaac')">
+                        📈 McIsaac Score
+                        <span class="tab-badge">-1 to 5</span>
+                    </button>
+                    <button class="tab-button" onclick="switchTab('feverpain')">
+                        🌡️ FeverPAIN Score
+                        <span class="tab-badge">0-5</span>
+                    </button>
+                </div>
 
-            <!-- Centor Criteria -->
-            <div id="centorCriteria" class="criteria-section">
-                <h2 style="margin-bottom: 15px; color: #1e293b;">✓ เกณฑ์การประเมิน (Centor)</h2>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>ไม่มีอาการไอ (Absence of cough) <strong>+1</strong></span>
-                    </label>
+                <!-- Centor Tab Content -->
+                <div id="centor" class="tab-content active">
+                    <div class="criteria-section">
+                        <h2>✓ เกณฑ์การประเมิน Centor Score</h2>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="centor" data-points="1">
+                                <span>ไม่มีอาการไอ (Absence of cough) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="centor" data-points="1">
+                                <span>ต่อมน้ำเหลืองบริเวณคอโตและเจ็บ (Swollen, tender, anterior cervical adenopathy) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="centor" data-points="1">
+                                <span>มีไข้ ≥ 38°C (Fever ≥ 38°C) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="centor" data-points="1">
+                                <span>ทอนซิลมีหนองหรือบวม (Tonsillar exudate or swelling) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>ต่อมน้ำเหลืองบริเวณคอโตและเจ็บ (Swollen, tender, anterior cervical adenopathy) <strong>+1</strong></span>
-                    </label>
-                </div>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>มีไข้ ≥ 38°C (Fever ≥ 38°C) <strong>+1</strong></span>
-                    </label>
-                </div>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>ทอนซิลมีหนองหรือบวม (Tonsillar exudate or swelling) <strong>+1</strong></span>
-                    </label>
-                </div>
-            </div>
 
-            <!-- McIsaac Criteria -->
-            <div id="mcisaacCriteria" class="criteria-section hidden">
-                <h2 style="margin-bottom: 15px; color: #1e293b;">✓ เกณฑ์การประเมิน (McIsaac)</h2>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>ไม่มีอาการไอ (Absence of cough) <strong>+1</strong></span>
-                    </label>
+                <!-- McIsaac Tab Content -->
+                <div id="mcisaac" class="tab-content">
+                    <div class="criteria-section">
+                        <h2>✓ เกณฑ์การประเมิน McIsaac Score</h2>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="mcisaac" data-points="1">
+                                <span>ไม่มีอาการไอ (Absence of cough) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="mcisaac" data-points="1">
+                                <span>ต่อมน้ำเหลืองบริเวณคอโตและเจ็บ (Swollen, tender, anterior cervical adenopathy) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="mcisaac" data-points="1">
+                                <span>มีไข้ ≥ 38°C (Fever ≥ 38°C) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="mcisaac" data-points="1">
+                                <span>ทอนซิลมีหนองหรือบวม (Tonsillar exudate or swelling) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                        <div class="age-group">
+                            <strong style="display: block; margin-bottom: 10px; color: #334155;">📅 กลุ่มอายุ:</strong>
+                            <label>
+                                <input type="radio" name="age-mcisaac" class="age-radio" data-system="mcisaac" value="1">
+                                <span>3-14 ปี <strong>+1</strong></span>
+                            </label>
+                            <label>
+                                <input type="radio" name="age-mcisaac" class="age-radio" data-system="mcisaac" value="0" checked>
+                                <span>15-44 ปี <strong>0</strong></span>
+                            </label>
+                            <label>
+                                <input type="radio" name="age-mcisaac" class="age-radio" data-system="mcisaac" value="-1">
+                                <span>≥ 45 ปี <strong>-1</strong></span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>ต่อมน้ำเหลืองบริเวณคอโตและเจ็บ (Swollen, tender, anterior cervical adenopathy) <strong>+1</strong></span>
-                    </label>
-                </div>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>มีไข้ ≥ 38°C (Fever ≥ 38°C) <strong>+1</strong></span>
-                    </label>
-                </div>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>ทอนซิลมีหนองหรือบวม (Tonsillar exudate or swelling) <strong>+1</strong></span>
-                    </label>
-                </div>
-                <div class="age-group">
-                    <strong style="display: block; margin-bottom: 10px; color: #334155;">📅 กลุ่มอายุ:</strong>
-                    <label>
-                        <input type="radio" name="age" class="age-radio" value="1">
-                        <span>3-14 ปี <strong>+1</strong></span>
-                    </label>
-                    <label>
-                        <input type="radio" name="age" class="age-radio" value="0" checked>
-                        <span>15-44 ปี <strong>0</strong></span>
-                    </label>
-                    <label>
-                        <input type="radio" name="age" class="age-radio" value="-1">
-                        <span>≥ 45 ปี <strong>-1</strong></span>
-                    </label>
-                </div>
-            </div>
 
-            <!-- FeverPAIN Criteria -->
-            <div id="feverpainCriteria" class="criteria-section hidden">
-                <h2 style="margin-bottom: 15px; color: #1e293b;">✓ เกณฑ์การประเมิน (FeverPAIN)</h2>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>ไม่มีอาการไอหรือน้ำมูก (Absence of cough or coryza) <strong>+1</strong></span>
-                    </label>
-                </div>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>ทอนซิลมีหนอง (Purulent tonsils) <strong>+1</strong></span>
-                    </label>
-                </div>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>มีไข้ใน 24 ชั่วโมงที่ผ่านมา (Febrile in past 24 hours) <strong>+1</strong></span>
-                    </label>
-                </div>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>ทอนซิลอักเสบ (Inflamed tonsils) <strong>+1</strong></span>
-                    </label>
-                </div>
-                <div class="criteria-item">
-                    <label>
-                        <input type="checkbox" class="criteria-check" data-points="1">
-                        <span>เริ่มมีอาการน้อยกว่า 3 วัน (Onset < 3 days) <strong>+1</strong></span>
-                    </label>
+                <!-- FeverPAIN Tab Content -->
+                <div id="feverpain" class="tab-content">
+                    <div class="criteria-section">
+                        <h2>✓ เกณฑ์การประเมิน FeverPAIN Score</h2>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="feverpain" data-points="1">
+                                <span>ไม่มีอาการไอหรือน้ำมูก (Absence of cough or coryza) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="feverpain" data-points="1">
+                                <span>ทอนซิลมีหนอง (Purulent tonsils) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="feverpain" data-points="1">
+                                <span>มีไข้ใน 24 ชั่วโมงที่ผ่านมา (Febrile in past 24 hours) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="feverpain" data-points="1">
+                                <span>ทอนซิลอักเสบ (Inflamed tonsils) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                        <div class="criteria-item">
+                            <label>
+                                <input type="checkbox" class="criteria-check" data-system="feverpain" data-points="1">
+                                <span>เริ่มมีอาการน้อยกว่า 3 วัน (Onset < 3 days) <strong>+1</strong></span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -480,6 +571,8 @@
     </div>
 
     <script>
+        let currentSystem = 'centor';
+
         const scoringData = {
             centor: {
                 lowRisk: { range: '0-1', probability: '7-12%' },
@@ -513,22 +606,26 @@
             }
         };
 
-        function changeSystem() {
-            const system = document.getElementById('scoringSystem').value;
+        function switchTab(system) {
+            currentSystem = system;
             
-            // Hide all criteria sections
-            document.getElementById('centorCriteria').classList.add('hidden');
-            document.getElementById('mcisaacCriteria').classList.add('hidden');
-            document.getElementById('feverpainCriteria').classList.add('hidden');
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.tab-button').classList.add('active');
             
-            // Show selected system
-            document.getElementById(system + 'Criteria').classList.remove('hidden');
+            // Update tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(system).classList.add('active');
             
             // Update reference table
             updateReferenceTable(system);
             
-            // Reset calculator
-            resetCalculator();
+            // Recalculate score for current system
+            calculateScore();
         }
 
         function updateReferenceTable(system) {
@@ -555,24 +652,23 @@
         }
 
         function calculateScore() {
-            const system = document.getElementById('scoringSystem').value;
             let score = 0;
             
-            // Calculate from checkboxes
-            const checkboxes = document.querySelectorAll('.criteria-check:checked');
+            // Calculate from checkboxes in current system
+            const checkboxes = document.querySelectorAll(`#${currentSystem} .criteria-check:checked`);
             checkboxes.forEach(cb => {
                 score += parseInt(cb.dataset.points);
             });
             
             // Add age points for McIsaac
-            if (system === 'mcisaac') {
-                const ageRadio = document.querySelector('input[name="age"]:checked');
+            if (currentSystem === 'mcisaac') {
+                const ageRadio = document.querySelector('input[name="age-mcisaac"]:checked');
                 if (ageRadio) {
                     score += parseInt(ageRadio.value);
                 }
             }
             
-            updateResults(score, system);
+            updateResults(score, currentSystem);
         }
 
         function updateResults(score, system) {
@@ -651,21 +747,19 @@
         }
 
         function resetCalculator() {
-            // Uncheck all checkboxes
-            document.querySelectorAll('.criteria-check').forEach(cb => {
+            // Uncheck all checkboxes in current tab
+            document.querySelectorAll(`#${currentSystem} .criteria-check`).forEach(cb => {
                 cb.checked = false;
             });
             
-            // Reset age radio to default (15-44 years)
-            const defaultAge = document.querySelector('input[name="age"][value="0"]');
-            if (defaultAge) defaultAge.checked = true;
+            // Reset age radio to default for McIsaac
+            if (currentSystem === 'mcisaac') {
+                const defaultAge = document.querySelector('input[name="age-mcisaac"][value="0"]');
+                if (defaultAge) defaultAge.checked = true;
+            }
             
-            // Reset results
-            document.getElementById('scoreDisplay').textContent = '0';
-            document.getElementById('riskLevel').textContent = 'ระดับความเสี่ยง: ต่ำ';
-            document.getElementById('probability').textContent = 'โอกาสเป็น GAS: 7-12%';
-            document.getElementById('recommendation').textContent = 'ไม่แนะนำให้ตรวจหาเชื้อหรือให้ยาปฏิชีวนะโดยทั่วไป';
-            document.getElementById('resultBox').className = 'result-box';
+            // Recalculate
+            calculateScore();
         }
 
         // Add event listeners
